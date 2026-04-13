@@ -1,0 +1,101 @@
+# Commandes rapides pour exposer Jenkins via ngrok
+
+## QUICK START (5 minutes)
+
+### 1. Installer ngrok
+powershell
+winget install ngrok
+ngrok version
+
+
+### 2. Créer un compte ngrok (gratuit)
+1. Aller à https://ngrok.com
+2. Cliquer "Sign Up"
+3. S'enregistrer avec un email
+4. Aller à https://dashboard.ngrok.com/auth/your-authtoken
+5. Copier le token
+
+
+### 3. Configurer ngrok
+powershell
+ngrok config add-authtoken VOTRE_TOKEN_ICI
+
+
+### 4. Lancer ngrok
+powershell
+ngrok http 8080
+
+# Vous verrez:
+# Forwarding    https://abc123def456.ngrok-free.app -> http://localhost:8080
+# ^ Copier cette URL
+
+
+### 5. Configurer le webhook GitHub
+1. Ouvrir https://github.com/Marouane148/Projet_JENKINS/settings/hooks
+2. Click "Add webhook"
+3. URL: https://abc123def456.ngrok-free.app/github-webhook/
+4. Type: application/json
+5. Event: Push events
+6. Click "Add webhook"
+
+
+### 6. Configurer Jenkins
+1. http://localhost:8080
+2. Créer ou ouvrir le job Pipeline
+3. Configure → Build Triggers
+4. ☑ Cocher "GitHub hook trigger for GITScm polling"
+5. Save
+
+
+### 7. Tester
+powershell
+cd C:\projet_jenkins\ICDE848
+git commit --allow-empty -m "Test webhook"
+git push
+
+# Jenkins devrait automatiquement déclencher le build !
+
+
+---
+
+## DÉPANNAGE RAPIDE
+
+### Erreur : ngrok introuvable
+powershell
+# Option 1 : Redémarrer PowerShell
+# Option 2 : Utiliser le chemin complet
+C:\ngrok\ngrok.exe http 8080
+
+
+### Erreur : Token invalide
+powershell
+ngrok config add-authtoken NOUVEAU_TOKEN
+ngrok http 8080
+
+
+### Vérifier que ngrok fonctionne
+1. Ouvrir http://127.0.0.1:4040 (tableau de bord ngrok)
+2. Vous devriez voir les requêtes HTTP
+
+
+### Vérifier les webhooks GitHub
+1. https://github.com/Marouane148/Projet_JENKINS/settings/hooks
+2. Click sur le webhook
+3. Voir "Recent Deliveries"
+4. Status doit être ✅ 200 OK
+
+
+### Jenkins ne déclenche pas les builds
+1. Vérifier que Jenkins tourne : .\jenkins-manage.ps1 -Action status
+2. Vérifier que "GitHub hook trigger" est coché
+3. Voir les logs : .\jenkins-manage.ps1 -Action logs
+4. Vérifier les webhooks GitHub Recent Deliveries
+
+
+---
+
+## LIENS UTILES
+
+- ngrok Dashboard: https://dashboard.ngrok.com
+- GitHub Webhooks Doc: https://docs.github.com/en/developers/webhooks-and-events
+- Jenkins GitHub Plugin: https://plugins.jenkins.io/github/

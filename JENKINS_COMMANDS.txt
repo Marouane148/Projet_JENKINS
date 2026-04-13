@@ -1,0 +1,75 @@
+# Commandes pour démarrer et configurer Jenkins
+
+## 1. DÉMARRER JENKINS AVEC DOCKER-COMPOSE
+
+# Naviguer vers le répertoire du projet
+cd C:\projet_jenkins\ICDE848
+
+# Démarrer Jenkins en mode détaché (-d)
+docker-compose up -d
+
+# Vérifier que le conteneur démarre
+docker-compose ps
+
+# Voir les logs de démarrage (pour vérifier que Jenkins est prêt)
+docker-compose logs -f jenkins
+
+---
+
+## 2. RÉCUPÉRER LE MOT DE PASSE INITIAL JENKINS
+
+# Attendre quelques secondes après le démarrage, puis récupérer le mot de passe initial
+docker exec jenkins-master cat /var/jenkins_home/secrets/initialAdminPassword
+
+# Alternative: Via docker-compose
+docker-compose exec jenkins cat /var/jenkins_home/secrets/initialAdminPassword
+
+---
+
+## 3. VÉRIFIER QUE LES CONTENEURS TOURNENT
+
+# Lister tous les conteneurs
+docker ps
+
+# Vérifier la santé de Jenkins
+docker exec jenkins-master curl -s http://localhost:8080/api/json | findstr "version"
+
+# Ou avec PowerShell
+docker exec jenkins-master curl -s http://localhost:8080/api/json | Select-String "version"
+
+---
+
+## 4. ACCÉDER À JENKINS
+
+# Ouvrir dans le navigateur
+http://localhost:8080
+
+# Entrer le mot de passe initial récupéré à l'étape 2
+
+---
+
+## 5. ARRÊTER/REDÉMARRER JENKINS
+
+# Arrêter Jenkins
+docker-compose down
+
+# Redémarrer Jenkins
+docker-compose restart
+
+# Redémarrer complètement (arrêter puis démarrer)
+docker-compose down && docker-compose up -d
+
+---
+
+## 6. VOIR LES LOGS
+
+# Logs en temps réel
+docker-compose logs -f jenkins
+
+# Derniers 100 lignes
+docker-compose logs --tail=100 jenkins
+
+## 7. NETTOYER (Attention: supprime les données Jenkins!)
+
+# Arrêter et supprimer les conteneurs et volumes
+docker-compose down -v

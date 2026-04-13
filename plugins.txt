@@ -1,0 +1,15 @@
+git:latest
+maven-plugin:latest
+jacoco:latest
+warnings-ng:latest
+pipeline-stage-view:latest
+pipeline-model-definition:latest
+pipeline-model-extensions:latest
+blueocean:latest
+blueocean-github-pipeline:latest
+github:latest
+ws-cleanup:latest
+log-parser:latest
+htmlpublisher:latest
+junit:latest
+cobertura:latest

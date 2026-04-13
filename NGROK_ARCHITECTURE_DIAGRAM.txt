@@ -1,0 +1,206 @@
+╔═══════════════════════════════════════════════════════════════════════════╗
+║      ARCHITECTURE : Jenkins + ngrok + GitHub Webhooks                     ║
+╚═══════════════════════════════════════════════════════════════════════════╝
+
+
+                            INTERNET
+                              ↑ ↓
+                    ┌─────────────────────┐
+                    │  GitHub Repository  │
+                    │  Marouane148/...    │
+                    └──────────┬──────────┘
+                               │
+                    (Push Event detected)
+                               │
+                    ┌──────────▼──────────┐
+                    │  GitHub Webhook     │
+                    │  POST request to:   │
+                    │  https://xxxx.      │
+                    │  ngrok-free.app/    │
+                    │  github-webhook/    │
+                    └──────────┬──────────┘
+                               │
+                    ┌──────────▼──────────────────┐
+                    │       ngrok Server         │
+                    │  (Public Internet Tunnel)   │
+                    │  https://xxxx.             │
+                    │  ngrok-free.app            │
+                    │         ↓                   │
+                    │  Forwards to:               │
+                    │  http://localhost:8080      │
+                    └──────────┬──────────────────┘
+                               │
+                               │ (Local Network)
+                               │
+                    ┌──────────▼──────────────────┐
+                    │   Jenkins (Docker)          │
+                    │   http://localhost:8080     │
+                    │   • Port 8080: Web UI       │
+                    │   • Port 50000: Agents      │
+                    └──────────┬──────────────────┘
+                               │
+                    ┌──────────▼──────────────────┐
+                    │  Pipeline Exécution         │
+                    │  • Checkout code            │
+                    │  • Build Maven              │
+                    │  • Tests                    │
+                    │  • Reports (JaCoCo, etc.)  │
+                    └─────────────────────────────┘
+
+
+═════════════════════════════════════════════════════════════════════════════
+PROCESSUS DE CONFIGURATION
+═════════════════════════════════════════════════════════════════════════════
+
+┌─────────────────────────────────────────────────┐
+│ 1. INSTALLER NGROK (Windows)                    │
+├─────────────────────────────────────────────────┤
+│ > winget install ngrok                          │
+│ > ngrok version                                 │
+└─────────────────────────────────────────────────┘
+                        ↓
+┌─────────────────────────────────────────────────┐
+│ 2. CRÉER COMPTE NGROK (Gratuit)                 │
+├─────────────────────────────────────────────────┤
+│ ? Aller à https://ngrok.com                     │
+│ ? Sign Up                                       │
+│ ? Récupérer le token:                           │
+│   https://dashboard.ngrok.com/auth/your-      │
+│   authtoken                                     │
+└─────────────────────────────────────────────────┘
+                        ↓
+┌─────────────────────────────────────────────────┐
+│ 3. CONFIGURER NGROK                             │
+├─────────────────────────────────────────────────┤
+│ > ngrok config add-authtoken VOTRE_TOKEN        │
+│                                                 │
+│ (Exemple de token : 2Uu9d9_L5XK...)            │
+└─────────────────────────────────────────────────┘
+                        ↓
+┌─────────────────────────────────────────────────┐
+│ 4. DÉMARRER NGROK                               │
+├─────────────────────────────────────────────────┤
+│ > ngrok http 8080                               │
+│                                                 │
+│ Résultat:                                       │
+│ Forwarding  https://abc123.ngrok-free.app  →   │
+│             http://localhost:8080              │
+│                                                 │
+│ ️⏰ Durée: 2h (gratuit) ou illimité (payant)   │
+└─────────────────────────────────────────────────┘
+                        ↓
+┌─────────────────────────────────────────────────┐
+│ 5. AJOUTER WEBHOOK GITHUB                       │
+├─────────────────────────────────────────────────┤
+│ ? GitHub Repo Settings → Webhooks               │
+│ ? Add webhook                                   │
+│ ? URL: https://abc123.ngrok-free.app/          │
+│        github-webhook/                          │
+│ ? Type: application/json                        │
+│ ? Event: Push events                            │
+│ ? Add webhook                                   │
+└─────────────────────────────────────────────────┘
+                        ↓
+┌─────────────────────────────────────────────────┐
+│ 6. CONFIGURER JENKINS                           │
+├─────────────────────────────────────────────────┤
+│ ? Jenkins → Job → Configure                     │
+│ ? Build Triggers                                │
+│ ? ✓ GitHub hook trigger for GITScm polling     │
+│ ? Save                                          │
+└─────────────────────────────────────────────────┘
+                        ↓
+┌─────────────────────────────────────────────────┐
+│ 7. TEST                                         │
+├─────────────────────────────────────────────────┤
+│ > cd C:\projet_jenkins\ICDE848                  │
+│ > git commit --allow-empty -m "Test"            │
+│ > git push                                      │
+│                                                 │
+│ ✓ Jenkins devrait déclencher automatiquement!   │
+└─────────────────────────────────────────────────┘
+
+
+═════════════════════════════════════════════════════════════════════════════
+FICHIERS DE CONFIGURATION
+═════════════════════════════════════════════════════════════════════════════
+
+C:\projet_jenkins\ICDE848\
+├── NGROK_GITHUB_WEBHOOK_SETUP.md .... Guide complet détaillé
+├── NGROK_QUICK_START.txt ............ Démarrage rapide (5 min)
+├── setup-ngrok-webhook.ps1 ......... Script PowerShell automatisé
+├── ngrok-setup.bat ................. Script Batch (Command Prompt)
+├── docker-compose.yml .............. Jenkins Docker
+├── Dockerfile ...................... Image Jenkins personnalisée
+└── Jenkinsfile ..................... Pipeline CI/CD
+
+
+═════════════════════════════════════════════════════════════════════════════
+COMMANDES RAPIDES
+═════════════════════════════════════════════════════════════════════════════
+
+╔═ INSTALLATION ═══════════════════════════════════════════╗
+║ winget install ngrok                                     ║
+║ ngrok config add-authtoken VOTRE_TOKEN                   ║
+╚══════════════════════════════════════════════════════════╝
+
+╔═ LANCER NGROK ════════════════════════════════════════════╗
+║ ngrok http 8080                                          ║
+║ → Copier l'URL publique (https://xxxx.ngrok-free.app)   ║
+╚══════════════════════════════════════════════════════════╝
+
+╔═ TESTER ══════════════════════════════════════════════════╗
+║ git commit --allow-empty -m "Test"                       ║
+║ git push origin main                                     ║
+║ → Jenkins déclenche automatiquement!                      ║
+╚══════════════════════════════════════════════════════════╝
+
+
+═════════════════════════════════════════════════════════════════════════════
+VÉRIFICATION
+═════════════════════════════════════════════════════════════════════════════
+
+✓ ngrok lancé                   : http://127.0.0.1:4040 (tableau de bord)
+✓ Jenkins accessible            : https://xxxx.ngrok-free.app (via ngrok)
+✓ Webhook GitHub configuré      : GitHub Settings → Webhooks
+✓ Recent Deliveries             : Status 200 OK (webhook reçus)
+✓ Jenkins traite automatiquement : Log → "GitHub hook triggered"
+
+
+═════════════════════════════════════════════════════════════════════════════
+DÉPANNAGE
+═════════════════════════════════════════════════════════════════════════════
+
+❌ ngrok: introuvable
+   → Redémarrer PowerShell après installation
+   → Ou utiliser: C:\ngrok\ngrok.exe http 8080
+
+❌ Token invalide
+   → Reconfigurer: ngrok config add-authtoken NOUVEAU_TOKEN
+
+❌ Jenkins ne déclenche pas les builds
+   → Vérifier: "GitHub hook trigger" coché dans Jenkins
+   → Vérifier: Recent Deliveries dans GitHub Webhooks
+   → Logs Jenkins: .\jenkins-manage.ps1 -Action logs
+
+❌ Webhook status 500 ou 403
+   → Vérifier que Jenkins tourne: .\jenkins-manage.ps1 -Action status
+   → Vérifier que le job Pipeline existe
+
+
+═════════════════════════════════════════════════════════════════════════════
+DURÉE DE VALIDITÉ
+═════════════════════════════════════════════════════════════════════════════
+
+Plan Gratuit:     2 heures (relancer ngrok, nouvelle URL)
+Plan Starter:     URL personne statique indéfinie (~$5/mois)
+
+
+═════════════════════════════════════════════════════════════════════════════
+LIENS UTILES
+═════════════════════════════════════════════════════════════════════════════
+
+ngrok:           https://ngrok.com
+Dashboard:       https://dashboard.ngrok.com
+GitHub Webhooks: https://docs.github.com/en/developers/webhooks-and-events
+Jenkins GitHub:  https://plugins.jenkins.io/github/

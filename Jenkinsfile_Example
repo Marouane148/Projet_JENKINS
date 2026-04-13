@@ -1,0 +1,149 @@
+pipeline {
+    agent any
+
+    options {
+        buildDiscarder(logRotator(numToKeepStr: '10'))
+        timeout(time: 1, unit: 'HOURS')
+        timestamps()
+    }
+
+    environment {
+        JAVA_HOME = '/opt/java/openjdk'
+        MAVEN_HOME = '/usr/share/maven'
+        PATH = "${MAVEN_HOME}/bin:${JAVA_HOME}/bin:${PATH}"
+        BUILD_ARTIFACTS = 'target/surefire-reports/*.xml'
+        COVERAGE_REPORT = 'target/site/jacoco/jacoco.xml'
+    }
+
+    triggers {
+        // Déclencher les builds sur GitHub webhook
+        githubPush()
+        
+        // Ou poll le repository toutes les 15 minutes
+        // pollSCM('H/15 * * * *')
+    }
+
+    stages {
+        stage('📋 Checkout') {
+            steps {
+                echo '================================'
+                echo '📋 Récupération du code source'
+                echo '================================'
+                checkout scm
+                sh 'git log -1 --pretty=format:"%h - %an - %s"'
+            }
+        }
+
+        stage('🔍 Verify Environment') {
+            steps {
+                echo '================================'
+                echo '🔍 Vérification de l\'environnement'
+                echo '================================'
+                sh 'echo "Java version:" && java -version'
+                sh 'echo "Maven version:" && mvn -version'
+                sh 'echo "Git version:" && git --version'
+            }
+        }
+
+        stage('🔨 Build') {
+            steps {
+                echo '================================'
+                echo '🔨 Compilation avec Maven'
+                echo '================================'
+                sh 'mvn clean compile -X'
+            }
+        }
+
+        stage('🧪 Unit Tests') {
+            steps {
+                echo '================================'
+                echo '🧪 Exécution des tests unitaires'
+                echo '================================'
+                sh 'mvn test'
+            }
+        }
+
+        stage('✅ Code Quality (Checkstyle)') {
+            steps {
+                echo '================================'
+                echo '✅ Analyse Checkstyle'
+                echo '================================'
+                sh 'mvn checkstyle:check || true'
+            }
+        }
+
+        stage('📦 Package') {
+            steps {
+                echo '================================'
+                echo '📦 Création du JAR'
+                echo '================================'
+                sh 'mvn package -DskipTests'
+                archiveArtifacts artifacts: 'target/*.jar', allowEmptyArchive: true
+            }
+        }
+
+        stage('🔗 Integration Tests') {
+            steps {
+                echo '================================'
+                echo '🔗 Tests d\'intégration'
+                echo '================================'
+                sh 'mvn verify'
+            }
+        }
+
+        stage('📊 Coverage Report (JaCoCo)') {
+            steps {
+                echo '================================'
+                echo '📊 Génération du rapport JaCoCo'
+                echo '================================'
+                sh 'mvn jacoco:report || true'
+            }
+        }
+    }
+
+    post {
+        always {
+            echo '================================'
+            echo '📝 Post-Build Actions'
+            echo '================================'
+            
+            // Archiver les rapports de test
+            junit testResults: 'target/surefire-reports/*.xml', allowEmptyResults: true
+            
+            // Archiver les rapports de failsafe (integration tests)
+            junit testResults: 'target/failsafe-reports/*.xml', allowEmptyResults: true
+            
+            // Publier les résultats Checkstyle
+            publishHTML target: [
+                reportDir: 'target/site',
+                reportFiles: 'checkstyle.html',
+                reportName: 'Checkstyle Report'
+            ]
+            
+            // Publier la couverture JaCoCo
+            publishHTML target: [
+                reportDir: 'target/site/jacoco',
+                reportFiles: 'index.html',
+                reportName: 'JaCoCo Coverage Report'
+            ]
+            
+            // Nettoyer les workspace
+            cleanWs()
+        }
+
+        success {
+            echo '✅ BUILD RÉUSSI'
+            echo 'Le projet a été construit avec succès!'
+        }
+
+        failure {
+            echo '❌ BUILD ÉCHOUÉ'
+            echo 'Une erreur s\'est produite lors de la construction.'
+        }
+
+        unstable {
+            echo '⚠️ BUILD INSTABLE'
+            echo 'Le build a complété mais avec des avertissements.'
+        }
+    }
+}
