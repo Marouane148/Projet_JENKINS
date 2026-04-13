@@ -15,6 +15,16 @@
     <property name="severity" value="warning"/>
     <property name="fileExtensions" value="java"/>
 
+    <!-- ─────────────────────────────────
+         LONGUEUR (au niveau du module racine)
+         Violation courante : méthode trop longue = difficile à tester
+    ───────────────────────────────── -->
+
+    <!-- Ligne max 120 caractères -->
+    <module name="LineLength">
+        <property name="max" value="120"/>
+    </module>
+
     <module name="TreeWalker">
 
         <!-- ─────────────────────────────────
@@ -35,14 +45,9 @@
         <module name="ConstantName"/>
 
         <!-- ─────────────────────────────────
-             LONGUEUR
+             LONGUEUR (au niveau TreeWalker)
              Violation courante : méthode trop longue = difficile à tester
         ───────────────────────────────── -->
-
-        <!-- Ligne max 120 caractères -->
-        <module name="LineLength">
-            <property name="max" value="120"/>
-        </module>
 
         <!-- Méthode max 50 lignes -->
         <module name="MethodLength">
