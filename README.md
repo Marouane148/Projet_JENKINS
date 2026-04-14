@@ -109,5 +109,5 @@ Warnings NG – SpotBugs       : **/spotbugsXml.xml
 - [Jenkins.io](https://jenkins.io) – Documentation officielle
 - [JUnit 5](https://junit.org/junit5/) – Documentation JUnit
 - [JaCoCo](https://www.jacoco.org) – Documentation couverture
-- [Checkstyle](https://checkstyle.org) – Règles disponibles
-- [SpotBugs](https://spotbugs.github.io) – Documentation
+- [Checkstyle](https://checkstyle.org) – Règles disponibles hj
+- [SpotBugs](https://spotbugs.github.io) – Documentations
