@@ -110,4 +110,4 @@ Warnings NG – SpotBugs       : **/spotbugsXml.xml
 - [JUnit 5](https://junit.org/junit5/) – Documentation JUnit
 - [JaCoCo](https://www.jacoco.org) – Documentation couverture
 - [Checkstyle](https://checkstyle.org) – Règles disponibles hj
-- [SpotBugs](https://spotbugs.github.io) – Documentations
+- [SpotBugs](https://spotbugs.github.io) – Documentations jdjkkz
