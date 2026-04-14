@@ -210,7 +210,16 @@ pipeline {
 
         // Seulement en cas d'échec
         failure {
-            echo "Build ECHEC — vérifier les logs ci-dessus"
+            mail to: 'marouanekaidi@gmail.com',
+                 subject: "❌ Build FAILED: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+                 body: "Le build ${env.BUILD_NUMBER} a échoué.\n\nVoir les logs : ${env.BUILD_URL}"
+        }
+
+        // Seulement en cas de succès
+        success {
+            mail to: 'marouanekaidi@gmail.com',
+                 subject: "✅ Build SUCCESS: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+                 body: "Le build ${env.BUILD_NUMBER} est un succès !\n\nVoir : ${env.BUILD_URL}"
         }
 
         // Seulement quand le build repasse de FAILURE à SUCCESS
